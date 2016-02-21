@@ -139,12 +139,12 @@ void fade(int r,int g,int b, int wait){
   unsigned int f = (millis()-timer)/wait;
   if (f % (res * 2) < res){
     brightness = ((f % res) / res);
-  }
+  } 
   if (f % (res * 2) >= res){
     brightness = (((res - f) % res) / res);
   }
   for(int i = 0; i < strip1.numPixels(); i+=1){
-    strip1.setPixelColor(i, strip1.Color((brightness*r),(brightness*g),(brightness*b));
+    strip1.setPixelColor(i, strip1.Color((brightness*r),(brightness*g),(brightness*b)));
   }
   
 }
