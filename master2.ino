@@ -36,7 +36,7 @@ void loop() {
     incoming = Serial.read(); // reads the next thing sent on the serial line.
     switch (incoming) {
       case 'f':
-        Serial.println ("Autonomous");
+        Serial.println ("Fade");
         animationID = 1;
         willReset = false;
         solidColor(0,0,0);
@@ -70,7 +70,7 @@ void loop() {
         animationID = 6;
         break;
       case 'c':
-        Serial.println ("Carnival");
+        Serial.println ("Autonomous");
         animationID = 7;
         willReset = true;
         solidColor(0,0,0);
@@ -278,7 +278,7 @@ void rainbowBounce(int r, int g, int b) {
     }
   */ 
   
-  for (int i = 299; i > 0; i = i -1){
+  for (int i = strip1.numPixels(); i > 0; i = i -1){
     strip1.setPixelColor(i,strip1.Color(255,0,0));
     strip1.setPixelColor(i + 1, strip1.Color(255,0,0));
     strip1.setPixelColor(i + 2, strip1.Color(255,0,0));
@@ -289,7 +289,7 @@ void rainbowBounce(int r, int g, int b) {
    //red
   }
 
-  for (int i = 0; i < 299; i = i +1){
+  for (int i = 0; i < strip1.numPixels(); i = i +1){
     strip1.setPixelColor(i,strip1.Color(255,65,0));
     strip1.setPixelColor(i - 1, strip1.Color(255,65,0));
     strip1.setPixelColor(i - 2, strip1.Color(255,65,0));
@@ -301,7 +301,7 @@ void rainbowBounce(int r, int g, int b) {
   }
 
   
-  for (int i = 299; i > 0; i = i -1){
+  for (int i = strip1.numPixels(); i > 0; i = i -1){
     strip1.setPixelColor(i,strip1.Color(255,130,0));
     strip1.setPixelColor(i + 1, strip1.Color(255,130,0));
     strip1.setPixelColor(i + 2, strip1.Color(255,130,0));
@@ -312,7 +312,7 @@ void rainbowBounce(int r, int g, int b) {
     //yellow
   }
 
- for (int i = 0; i < 299; i = i +1){
+ for (int i = 0; i < strip1.numPixels(); i = i +1){
     strip1.setPixelColor(i,strip1.Color(0,255,0));
     strip1.setPixelColor(i - 1, strip1.Color(0,255,0));
     strip1.setPixelColor(i - 2, strip1.Color(0,255,0));
@@ -322,7 +322,7 @@ void rainbowBounce(int r, int g, int b) {
 
     //green
   }
-for (int i = 299; i > 0; i = i -1){
+for (int i = strip1.numPixels(); i > 0; i = i -1){
     strip1.setPixelColor(i,strip1.Color(0,0,230));
     strip1.setPixelColor(i + 1, strip1.Color(0,0,230));
     strip1.setPixelColor(i + 2, strip1.Color(0,0,230));
@@ -332,7 +332,7 @@ for (int i = 299; i > 0; i = i -1){
 
     //blue
   }
-   for (int i = 0; i < 299; i = i +1){
+   for (int i = 0; i < strip1.numPixels(); i = i +1){
     strip1.setPixelColor(i,strip1.Color(255,0,255));
     strip1.setPixelColor(i - 1, strip1.Color(255,0,255));
     strip1.setPixelColor(i - 2, strip1.Color(255,0,255));
