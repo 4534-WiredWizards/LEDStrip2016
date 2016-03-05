@@ -3,7 +3,7 @@
 #define PIN1 6 // the Data Pin for the strip.
 #define PIN2 5 // the Data Pin for the strip.
 #define PIN3 3 // the Data Pin for the strip.
-#define NUMPIXELS 63 // how many pixels are on the strip
+#define NUMPIXELS 67 // how many pixels are on the strip
 
 Adafruit_NeoPixel strip3 =  Adafruit_NeoPixel(17, PIN3, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip2 =  Adafruit_NeoPixel(NUMPIXELS, PIN2, NEO_GRB + NEO_KHZ800);
@@ -16,6 +16,8 @@ int red = 0;
 int green = 32;
 int blue = 0;
 unsigned long lastTick = 0;
+unsigned long timeSince = 0;
+
 boolean willReset = true;
 
 boolean redAlliance = true;
@@ -37,7 +39,9 @@ void setup() {
 
 void loop() {
   lastTick = micros();
+  redo:
   if (Serial.available() > 0) {
+    timeSince = millis();
     incoming = Serial.read(); // reads the next thing sent on the serial line.
     switch (incoming) {
       case 'f':
@@ -45,6 +49,11 @@ void loop() {
         animationID = 1;
         willReset = false;
         solidColor(0,0,0);
+        break;
+      case '~':
+        Serial.println ("Alive");
+        //keeps the lights awake. Leave blank unless you've got something to do nearly every active frame.
+        goto redo;
         break;
       case 'b':
         Serial.println ("Bounce");
@@ -123,6 +132,10 @@ void loop() {
         solidColor(0,0,0);
         break;
     }
+  } else if (millis() - timeSince > 5000) {
+    animationID = 2;
+    willReset = true;
+    solidColor(0,0,0);
   }
 
   switch (animationID){
@@ -206,6 +219,7 @@ void bounce(int r, int g, int b, int wait){
     willReset = false;
   }
   unsigned int f = (millis()-timer)/wait;
+  f %= ((strip1.numPixels() * 2) - 2);
 
   if (f <= strip1.numPixels()) {
     strip1.setPixelColor(f,strip1.Color(r,g,b));
@@ -216,9 +230,7 @@ void bounce(int r, int g, int b, int wait){
     strip1.setPixelColor((strip1.numPixels() * 2) - f, strip1.Color(r,g,b));
     strip1.setPixelColor((strip1.numPixels() * 2) - f + 1, strip1.Color(0,0,0));
   }
-  if (f > (strip1.numPixels() * 2) - 1) {
-    willReset = true;
-  }
+  
 }
   
 void carnival(int r,int g,int b, int wait){
@@ -412,6 +424,7 @@ void bounce2(int r, int g, int b, int wait){
     willReset = false;
   }
   unsigned int f = (millis()-timer)/wait;
+  f %= ((strip2.numPixels() * 2) - 2);
 
   if (f <= strip2.numPixels()) {
     strip2.setPixelColor(f,strip2.Color(r,g,b));
@@ -421,9 +434,6 @@ void bounce2(int r, int g, int b, int wait){
   if (f > strip2.numPixels()){
     strip2.setPixelColor((strip2.numPixels() * 2) - f, strip2.Color(r,g,b));
     strip2.setPixelColor((strip2.numPixels() * 2) - f + 1, strip2.Color(0,0,0));
-  }
-  if (f > (strip2.numPixels() * 2) - 1) {
-    willReset = true;
   }
 }
   
@@ -617,19 +627,20 @@ void bounce3(int r, int g, int b, int wait){
     timer = millis();
     willReset = false;
   }
+  static int previous = 0;
   unsigned int f = (millis()-timer)/wait;
+  f %= ((strip3.numPixels() * 2) - 2);
 
   if (f <= strip3.numPixels()) {
     strip3.setPixelColor(f,strip3.Color(r,g,b));
-    strip3.setPixelColor(f - 1,strip3.Color(0,0,0));
+    strip3.setPixelColor(previous, strip3.Color(0,0,0));
+    previous = f;
   }
 
   if (f > strip3.numPixels()){
     strip3.setPixelColor((strip3.numPixels() * 2) - f, strip3.Color(r,g,b));
-    strip3.setPixelColor((strip3.numPixels() * 2) - f + 1, strip3.Color(0,0,0));
-  }
-  if (f > (strip3.numPixels() * 2) - 1) {
-    willReset = true;
+    strip3.setPixelColor(previous, strip3.Color(0,0,0));
+    previous = (strip3.numPixels() * 2) - f + 1;
   }
 }
   
