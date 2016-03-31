@@ -1,7 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 
 #define PIN 6 // the Data Pin for the strip.
-#define NUMPIXELS 67 // how many pixels are on the strip
+#define NUMPIXELS 66 // how many pixels are on the strip
 
 
 class NewNeoPixel:public Adafruit_NeoPixel  {
@@ -20,13 +20,13 @@ class NewNeoPixel:public Adafruit_NeoPixel  {
 };
 
 
-NewNeoPixel strip1 = NewNeoPixel(67, 6, NEO_GRB + NEO_KHZ800);
-NewNeoPixel strip2 = NewNeoPixel(67, 5, NEO_GRB + NEO_KHZ800);
+NewNeoPixel strip1 = NewNeoPixel(66, 6, NEO_GRB + NEO_KHZ800);
+NewNeoPixel strip2 = NewNeoPixel(66, 5, NEO_GRB + NEO_KHZ800);
 NewNeoPixel strip3 = NewNeoPixel(17, 3, NEO_GRB + NEO_KHZ800);
 
 int incoming;
 
-int animationID = 2;
+int animationID = 1;
 int red = 0;
 int green = 0;
 int blue = 32;
@@ -61,7 +61,6 @@ void loop() {
       case 'f':
         Serial.println ("Fade");
         animationID = 1;
-        willReset = false;
         strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -70,7 +69,6 @@ void loop() {
       case 'b':
         Serial.println ("Bounce");
         animationID = 2;
-        willReset = true;
         strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -79,7 +77,6 @@ void loop() {
       case 'i':
         Serial.println ("Teleop");
         animationID = 3;
-        willReset = true;
         strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -88,7 +85,6 @@ void loop() {
       case 'e':
         Serial.println ("Easter");
         animationID = 4;
-        willReset = true;
         strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -97,7 +93,6 @@ void loop() {
       case 'l':
         Serial.println ("Intake Running");
         animationID = 5;
-        willReset = true;
         strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -114,7 +109,6 @@ void loop() {
       case 'c':
         Serial.println ("Autonomous");
         animationID = 7;
-        willReset = true;
         strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -159,7 +153,6 @@ void loop() {
        case 'w':
         Serial.println ("Disabled");
         animationID = 8;
-        //willReset = true;
        strip1.solidColor(0,0,0);
         strip2.solidColor(0,0,0);
         strip3.solidColor(0,0,0);
@@ -172,8 +165,7 @@ void loop() {
         break;
     }
   } else if (millis() - timeSince > 5000) {
-    animationID = 2;
-    //willReset = true;
+    animationID = 1;
     strip1.solidColor(0,0,0);
     strip2.solidColor(0,0,0);
     strip3.solidColor(0,0,0);
@@ -182,15 +174,15 @@ void loop() {
 
   switch (animationID){
       case 1:
-         strip1.alternatingFade (red, green, blue, 10, 1);
-         strip2.alternatingFade (red, green, blue, 10, 1);
-         strip3.alternatingFade (red, green, blue, 10, 1);
+         strip1.alternatingFade (red, green, blue, 5, 3);
+         strip2.alternatingFade (red, green, blue, 5, 3);
+         strip3.alternatingFade (red, green, blue, 5, 3);
          
         break;
       case 2:
-        strip1.bounce (red, green, blue, 5);
-        strip2.bounce (red, green, blue, 5);
-        strip3.bounce (red, green, blue, 5);
+        strip1.bounce (red, green, blue, 10);
+        strip2.bounce (red, green, blue, 10);
+        strip3.bounce (red, green, blue, 10);
         
         break;
       case 3:
@@ -274,37 +266,34 @@ for(int q = 0; q < 64; q += 1){
 void NewNeoPixel::alternatingFade(int r,int g,int b, int wait, int wavelength){
 
   static unsigned long timer = millis();
-  if(willReset){
-    timer = millis();
-    willReset = false;
-  }
   
   unsigned int f = (millis()-timer)/wait;
-  int res = 16;
+  int res = 64;
   int l = 0;
   f %= ((res * 2) * wavelength);
   int s = f / (res * 2);
   s %= wavelength;
   
-  if (f % (res * 2) <= res) {
-  int l = f % (res * wavelength);
-  } else if (f % (res * 2) > res) {
-  int l = res - (f % (res * wavelength));
+  if (f % (res * 2) < res) {
+  l = f % (res);
+  } else if (f % (res * 2) >= res) {
+  l = res - (f % (res));
   }
 
   for (int i = s; i < this->numPixels(); i += wavelength){
     this->setPixelColor(i, this->Color((l*r)/res,(l*g)/res,(l*b)/res));
   }
   this->show();
+  Serial.println(f);
+  Serial.println((l*b)/res);
+  Serial.println(s);
 }
 
 void NewNeoPixel::bounce(int r, int g, int b, int wait){
   static unsigned long timer = millis();
-  if(willReset){
-    timer = millis();
-    willReset = false;
-  }
+  
   unsigned int f = (millis()-timer)/wait;
+  f %= ((this->numPixels() * 2) - 1);
 
   if (f <= this->numPixels()) {
     this->setPixelColor(f,this->Color(r,g,b));
@@ -319,16 +308,12 @@ void NewNeoPixel::bounce(int r, int g, int b, int wait){
     this->setPixelColor((this->numPixels() * 2) - f + 2, this->Color(0,0,0));
   }
   if (f > (this->numPixels() * 2) - 1) {
-    willReset = true;
+    
   }
 }
   
 void NewNeoPixel::carnival(int r,int g,int b, int wait){
   static unsigned long timer = millis();
-  if(willReset){
-    timer = millis();
-    willReset = false;
-  }
   unsigned int f = (millis()-timer)/wait;
   int c = f % 3;
   for(int i = 0; i < this->numPixels() + 1; i+=3){
@@ -347,18 +332,13 @@ void NewNeoPixel::solidColor(int r, int g, int b){
 
 void NewNeoPixel::blink(int r, int g, int b, int wait) {
   static unsigned long timer = millis();
-  if(willReset){
-    timer = millis();
-    willReset = false;
-  }
+  
   unsigned int f = (millis()-timer)/wait;
+  f %= 2;
   if (f % 2) {
   solidColor(0,0,0);
   } else {
   solidColor(r,g,b);
-  }
-  if (f >= 2) {
-    willReset = true;
   }
 }
 
